@@ -3,6 +3,7 @@ import TravelTimeDifference from 'components/TravelTimeDifference';
 import Congestion from 'components/Congestion';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
+import * as playwright from 'playwright-aws-lambda';
 
 type IndexPageProps = {
   data: {
@@ -16,9 +17,9 @@ type IndexPageProps = {
 
 export default function IndexPage({ data }: IndexPageProps) {
   return (
-    <div className='flex flex-col pt-10 h-screen bg-gray-200 dark:bg-gray-800'>
+    <div className='flex flex-col h-screen bg-gray-200 dark:bg-gray-800'>
       <Header />
-      <main className='mt-10 mx-auto mb-auto max-w-7xl px-4 sm:mt-24'>
+      <main className='mt-10 mx-auto mb-auto max-w-7xl px-4'>
         <div className='text-center'>
           <h1 className='text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl'>
             <span className='block xl:inline'>
@@ -35,15 +36,15 @@ export default function IndexPage({ data }: IndexPageProps) {
             {data?.updatedAt}
           </h3>
           {data.direction === 'Unknown' ? (
-            <h1 className='text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl'>
+            <h1 className='text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl'>
               <span className='block xl:inline'>Status: </span>
               <span className='block text-blue-300 xl:inline'>Unknown</span>
             </h1>
           ) : (
-            <dl className='mt-5 grid grid-cols-1 rounded-lg bg-white overflow-hidden shadow divide-y divide-gray-200 md:grid-cols-3 md:divide-y-0 md:divide-x'>
+            <dl className='mt-5 grid grid-cols-1 rounded-lg bg-white dark:bg-gray-900 overflow-hidden shadow divide-y divide-gray-200 md:grid-cols-3 md:divide-y-0 md:divide-x'>
               <div>
                 <div className='px-4 py-5 sm:p-6'>
-                  <dt className='text-base font-normal  text-gray-900'>
+                  <dt className='text-base font-normal  text-gray-900 dark:text-white'>
                     Direction
                   </dt>
                   <dd className='mt-1 flex justify-between items-baseline md:block lg:flex'>
@@ -56,7 +57,7 @@ export default function IndexPage({ data }: IndexPageProps) {
 
               <div>
                 <div className='px-4 py-5 sm:p-6'>
-                  <dt className='text-base font-normal  text-gray-900'>
+                  <dt className='text-base font-normal  text-gray-900 dark:text-white'>
                     Travel Time
                   </dt>
                   <dd className='mt-1 flex justify-between items-baseline md:block lg:flex'>
@@ -77,7 +78,9 @@ export default function IndexPage({ data }: IndexPageProps) {
 
               <div>
                 <div className='px-4 py-5 sm:p-6'>
-                  <dt className='text-base font-normal text-gray-900'>Speed</dt>
+                  <dt className='text-base font-normal text-gray-900 dark:text-white'>
+                    Speed
+                  </dt>
                   <dd className='mt-1 flex justify-between items-baseline md:block lg:flex'>
                     <div className='flex items-baseline text-2xl font-semibold text-blue-300'>
                       {data.speed} mph
@@ -96,7 +99,67 @@ export default function IndexPage({ data }: IndexPageProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const res = await fetch('http://localhost:3000/api/kennedy');
-  const data = await res.json();
+  let browser = null;
+  let direction: string = 'Unknown';
+  let travelTime: string | null = '';
+  let averageTravelTime: string | null = '';
+  let speed: string | null = '';
+  let data = {};
+  try {
+    const browser = await playwright.launchChromium({ headless: true });
+    const context = await browser.newContext();
+
+    const page = await context.newPage();
+    await page.goto(
+      'https://www.travelmidwest.com/lmiga/traveltimes.jsp?location=GATEWAY.IL.KENNEDY'
+    );
+    const updatedAt = await page.$eval(
+      '.pageHeaderRight',
+      (el: any) => el.textContent?.trim().split('\n')[0]
+    );
+
+    const travelTimeIn = await page.$eval(
+      '[headers=travelTime2]',
+      (el) => el.textContent
+    );
+    const averageTravelTimeIn = await page.$eval(
+      '[headers=avgTravelTime2]',
+      (el) => el.textContent
+    );
+    const speedIn = await page.$eval(
+      '[headers=speed2]',
+      (el) => el.textContent
+    );
+
+    const travelTimeOut = await page.$eval(
+      '[headers=travelTime3]',
+      (el) => el.textContent
+    );
+    const averageTravelTimeOut = await page.$eval(
+      '[headers=avgTravelTime3]',
+      (el) => el.textContent
+    );
+    const speedOut = await page.$eval(
+      '[headers=speed3]',
+      (el) => el.textContent
+    );
+
+    if (travelTimeIn !== 'N/A') {
+      (direction = 'Inbound'), (travelTime = travelTimeIn);
+      averageTravelTime = averageTravelTimeIn;
+      speed = speedIn;
+    } else if (travelTimeOut !== 'N/A') {
+      (direction = 'Outbound'), (travelTime = travelTimeOut);
+      averageTravelTime = averageTravelTimeOut;
+      speed = speedOut;
+    }
+
+    data = { updatedAt, direction, travelTime, averageTravelTime, speed };
+    if (browser) {
+      await browser.close();
+    }
+  } catch (error) {
+    throw error;
+  }
   return { props: { data } };
 };
