@@ -1,11 +1,12 @@
 import { useTheme } from 'next-themes';
 
 const Header = () => {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+
   return (
     <header>
       <div className='flex justify-end mx-auto max-w-7xl px-4 mt-10'>
-        {theme === 'light' ? (
+        {resolvedTheme === 'light' ? (
           <button
             onClick={() => setTheme('dark')}
             className='flex items-center justify-center h-12 w-12 rounded-md text-black'
