@@ -6,8 +6,10 @@ A web app to view the status of the Chicago Kennedy express lanes.
 
 View App [Here](https://expresschi.com/)
 
-![](public/expresschimobile.png)
-![](public/expresschi.png)
+<p align="center">
+  <img src="public/expresschimobile.png" alt="Express Chi mobile"/>
+  <img src="public/expresschi.png" alt="Express Chi web"/>
+</p>
 
 ## Built With
 
