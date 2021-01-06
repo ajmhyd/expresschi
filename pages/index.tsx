@@ -49,56 +49,56 @@ export default function IndexPage({ data }: IndexPageProps) {
                 <span className='block text-blue-300 xl:inline'>Unknown</span>
               </h1>
             ) : (
-              <dl className='mt-5 grid grid-cols-1 rounded-lg bg-white dark:bg-gray-900 overflow-hidden shadow divide-y divide-gray-200 md:grid-cols-3 md:divide-y-0 md:divide-x'>
-                <div>
-                  <div className='px-4 py-5 sm:p-6'>
-                    <dt className='text-base font-normal  text-gray-900 dark:text-white'>
-                      Direction
+                <dl className='mt-5 grid grid-cols-1 rounded-lg bg-white dark:bg-gray-900 overflow-hidden shadow divide-y divide-gray-200 md:grid-cols-3 md:divide-y-0 md:divide-x'>
+                  <div>
+                    <div className='px-4 py-5 sm:p-6'>
+                      <dt className='text-base font-normal  text-gray-900 dark:text-white'>
+                        Direction
                     </dt>
-                    <dd className='mt-1 flex justify-between items-baseline md:block lg:flex'>
-                      <div className='flex items-baseline text-2xl font-semibold text-blue-300'>
-                        {data.direction}
-                      </div>
-                    </dd>
+                      <dd className='mt-1 flex justify-between items-baseline md:block lg:flex'>
+                        <div className='flex items-baseline text-2xl font-semibold text-blue-300'>
+                          {data.direction}
+                        </div>
+                      </dd>
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <div className='px-4 py-5 sm:p-6'>
-                    <dt className='text-base font-normal  text-gray-900 dark:text-white'>
-                      Travel Time
+                  <div>
+                    <div className='px-4 py-5 sm:p-6'>
+                      <dt className='text-base font-normal  text-gray-900 dark:text-white'>
+                        Travel Time
                     </dt>
-                    <dd className='mt-1 flex justify-between items-baseline md:block lg:flex'>
-                      <div className='flex items-baseline text-2xl font-semibold text-blue-300'>
-                        {data.travelTime} minutes
+                      <dd className='mt-1 flex justify-between items-baseline md:block lg:flex'>
+                        <div className='flex items-baseline text-2xl font-semibold text-blue-300'>
+                          {data.travelTime} minutes
                         <span className='ml-2 text-sm font-medium text-gray-500'>
-                          {data.averageTravelTime} min avg
+                            {data.averageTravelTime} min avg
                         </span>
-                      </div>
+                        </div>
 
-                      <TravelTimeDifference
-                        travelTime={+data.travelTime}
-                        averageTravelTime={+data.averageTravelTime}
-                      />
-                    </dd>
+                        <TravelTimeDifference
+                          travelTime={+data.travelTime}
+                          averageTravelTime={+data.averageTravelTime}
+                        />
+                      </dd>
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <div className='px-4 py-5 sm:p-6'>
-                    <dt className='text-base font-normal text-gray-900 dark:text-white'>
-                      Speed
+                  <div>
+                    <div className='px-4 py-5 sm:p-6'>
+                      <dt className='text-base font-normal text-gray-900 dark:text-white'>
+                        Speed
                     </dt>
-                    <dd className='mt-1 flex justify-between items-baseline md:block lg:flex'>
-                      <div className='flex items-baseline text-2xl font-semibold text-blue-300'>
-                        {data.speed} mph
+                      <dd className='mt-1 flex justify-between items-baseline md:block lg:flex'>
+                        <div className='flex items-baseline text-2xl font-semibold text-blue-300'>
+                          {data.speed} mph
                       </div>
-                      <Congestion speed={+data.speed} />
-                    </dd>
+                        <Congestion speed={+data.speed} />
+                      </dd>
+                    </div>
                   </div>
-                </div>
-              </dl>
-            )}
+                </dl>
+              )}
           </div>
         </main>
         <Footer />
@@ -107,8 +107,8 @@ export default function IndexPage({ data }: IndexPageProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  let browser = null;
+export const getServerSideProps: GetServerSideProps = async () => {
+  let browser: any = null;
   let direction: string = 'Unknown';
   let travelTime: string | null = '';
   let averageTravelTime: string | null = '';
@@ -164,11 +164,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     data = { updatedAt, direction, travelTime, averageTravelTime, speed };
+
+  } catch (error) {
+    throw error;
+  } finally {
     if (browser) {
       await browser.close();
     }
-  } catch (error) {
-    throw error;
   }
   return { props: { data } };
 };
