@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import idotLogo from '../public/idotLogo.png'
 
 const Footer = () => {
   return (
@@ -9,7 +10,7 @@ const Footer = () => {
           Transportation
         </p>
         <div className='mt-8 flex justify-center space-x-6'>
-          <Image src='/idotLogo.png' alt="IDOT Logo" width={400} height={100} />
+          <Image src={idotLogo} alt="IDOT Logo" width={400} height={100} placeholder="blur" />
         </div>
         <p className='mt-8 text-center text-base text-gray-400 dark:text-gray-300'>
           Made with ❤ by{' '}

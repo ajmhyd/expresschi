@@ -43,7 +43,7 @@ export default function IndexPage({ data }: IndexPageProps) {
             <h3 className='text-lg leading-6 font-medium text-gray-900 dark:text-white mb-6'>
               {data?.updatedAt}
             </h3>
-            {data.direction === 'Unknown' ? (
+            {data?.direction === 'Unknown' ? (
               <h1 className='text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl'>
                 <span className='block xl:inline'>Status: </span>
                 <span className='block text-blue-300 xl:inline'>Unknown</span>
@@ -154,18 +154,18 @@ export const getServerSideProps: GetServerSideProps = async () => {
     );
 
     if (travelTimeIn !== 'N/A') {
-      (direction = 'Inbound'), (travelTime = travelTimeIn);
+      direction = 'Inbound';
+      travelTime = travelTimeIn;
       averageTravelTime = averageTravelTimeIn;
       speed = speedIn;
     } else if (travelTimeOut !== 'N/A') {
-      (direction = 'Outbound'), (travelTime = travelTimeOut);
+      direction = 'Outbound';
+      travelTime = travelTimeOut;
       averageTravelTime = averageTravelTimeOut;
       speed = speedOut;
     }
 
     data = { updatedAt, direction, travelTime, averageTravelTime, speed };
-  } catch (error) {
-    throw error;
   } finally {
     if (browser) {
       await browser.close();
